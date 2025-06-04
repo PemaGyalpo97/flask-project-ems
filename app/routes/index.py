@@ -1,40 +1,61 @@
 """Routes for the application."""
-from flask import render_template
+from flask import render_template, redirect, url_for
+from app.forms.forms import RegistrationForm
 
-def register_routes(app): # type: ignore
+def register_routes(app): 
     """Register routes for the application."""
-    @app.route('/') # type: ignore
-    def index(): # type: ignore
+    @app.route('/') 
+    def index(): 
         return render_template('index.html')
 
-    @app.route('/home') # type: ignore
-    def home_page(): # type: ignore
+    @app.route('/home') 
+    def home_page(): 
         return render_template('home-page.html')
     
-    @app.route('/login') # type: ignore
-    def login(): # type: ignore
+    @app.route('/login')
+    def login():
         return render_template('login.html')
 
-    @app.route('/registration') # type: ignore
-    def registration(): # type: ignore
-        return render_template('registration.html')
+    @app.route('/registration', methods=['GET', 'POST'])
+    def registration():
+        form = RegistrationForm()
+        if form.validate_on_submit():
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            new_user = User(
+                firstname=form.firstname.data,
+                middlename=form.middlename.data,
+                lastname=form.lastname.data,
+                username=form.username.data,
+                email=form.email.data,
+                password=hashed_password,
+                contact_number=form.contact_number.data,
+                address=form.address.data
+            )
+            print(new_user)
+            db.session.add(new_user)
+            db.session.commit()
 
-    @app.route('/about-us') # type: ignore
-    def about_us(): # type: ignore
+            flash('Registration successful', 'success')
+
+            return redirect(url_for('login'))  # or some success page
+        return render_template('registration.html', form=form)
+
+    @app.route('/about-us') 
+    def about_us(): 
         return render_template('about-us.html')
 
-    @app.route('/contact-us') # type: ignore
-    def contact_us(): # type: ignore
+    @app.route('/contact-us') 
+    def contact_us(): 
         return render_template('contact-us.html')
 
-    @app.route('/create-event') # type: ignore
-    def create_event(): # type: ignore
+    @app.route('/create-event') 
+    def create_event(): 
         return render_template('create-event.html')
     
-    @app.route('/event-details') # type: ignore
-    def event_details(): # type: ignore
+    @app.route('/event-details') 
+    def event_details(): 
         return render_template('event-details.html')
     
-    @app.route('/booking-history') # type: ignore
-    def booking_history(): # type: ignore
+    @app.route('/booking-history') 
+    def booking_history(): 
         return render_template('booking-history.html')
